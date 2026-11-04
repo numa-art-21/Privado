@@ -15,9 +15,9 @@
   pre { margin: 14px 0 0; color: #1b862d; font: clamp(14px, 4vw, 20px)/1.5 ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; word-break: break-word; text-align: left; }
   .cur { display: inline-block; width: 6px; height: 14px; background: #199229; vertical-align: -2px; animation: b 0.8s ease infinite; }
   @keyframes b { 50% { opacity: 0; } }
-  #msg { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; font: 700 clamp(28px, 9vw, 70px) Georgia, "Times New Roman", serif; 
+  #msg { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; font: 700 clamp(28px, 9vw, 70px) Georgia, "Times New Roman", serif;
   letter-spacing: 0.3em; color: #ffd6ea; text-shadow: 0 0 12px #ff3d92, 0 0 34px #ff3d92; filter: blur(12px); z-index: 5; text-align: center; padding: 0 10px; }
-  
+
   /* Indicador visual inicial para el usuario */
   #hint { position: fixed; bottom: 30px; width: 100%; text-align: center; color: rgba(255,255,255,0.6); font-family: sans-serif; font-size: 14px; z-index: 20; pointer-events: none; transition: opacity 1s; }
   #hint.hide { opacity: 0; }
@@ -26,8 +26,8 @@
 <body>
 
 <!-- REPRODUCTORES DE AUDIO -->
-<audio id="bg-music" src="sonido_ba.mp3" preload="auto" loop></audio>
-<audio id="bga-music" src="sonido_aca.mp3" preload="auto" loop></audio>
+<audio id="bg-music" src="sonido_ba.mp3" preload="auto" loop playsinline></audio>
+<audio id="bga-music" src="sonido_aca.mp3" preload="auto" loop playsinline></audio>
 
 <!-- MENSAJE DE AYUDA PARA MÓVILES/PC -->
 <div id="hint">Toca la pantalla para comenzar ♥</div>
@@ -36,7 +36,7 @@
   <path id="heart" d="M300 530 C120 400 20 300 20 180 C20 80 90 20 170 20 C230 20 275 55 300 110 C325 55 370 20 430 20 C510 20 580 80 580 180 C580 300 480 400 300 530 Z"/>
 </svg>
 
-<div id="msg">TE AMO VICTORIA ♥ <br> FELICES 3 AÑOS JUNTOS</div>
+<div id="msg">TE AMO VICTORIA ♥ <br> FELICES 11 MESES JUNTOS</div>
 
 <div id="code">
   <div id="win">
@@ -57,7 +57,7 @@ const CODE = [
   '    const vector = new THREE.Vector3(point.x, -point.y, 0);',
   '    vector.x += (Math.random() - 0.5) * 30;',
   '    vector.y += (Math.random() - 0.5) * 30;',
-  '    vector.z += (Math.random() - 0.5) * 70;',   
+  '    vector.z += (Math.random() - 0.5) * 70;',
   '    vertices.push(vector);',
   '    tl.from(vector, {',
   '      x: 600 / 2,',
@@ -98,7 +98,6 @@ for (let i = 0; i < length; i += 0.2) {
   tl.from(v, { x: 300, y: -276, z: 0, ease: "power2.inOut", duration: gsap.utils.random(2, 5) }, i * 0.002);
 }
 
-// CORREGIDO: Se agregó el operador de multiplicación (*)
 const positions = new Float32Array(vertices.length * 3);
 const geometry = new THREE.BufferGeometry();
 geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -116,12 +115,12 @@ scene.add(pivot);
     positions[i * 3 + 2] = vertices[i].z;
   }
   geometry.attributes.position.needsUpdate = true;
-  pivot.rotation.y = Math.sin(performance.now() / 2500) * 1.35; 
+  pivot.rotation.y = Math.sin(performance.now() / 2500) * 1.35;
 
   const t = performance.now() / 3000;
-  camera.position.x = Math.sin(t) * 50;  
-  camera.position.y = Math.cos(t * 3) * 25; 
-  camera.lookAt(0, 0, 0); 
+  camera.position.x = Math.sin(t) * 50;
+  camera.position.y = Math.cos(t * 3) * 25;
+  camera.lookAt(0, 0, 0);
 
   renderer.render(scene, camera);
 })();
@@ -140,8 +139,8 @@ function start() {
   clearInterval(typer);
   busy = true;
   tl.pause(0);
-  
-  music2.pause();
+
+  // Primer audio: se reproduce directamente dentro del gesto del usuario
   music.currentTime = 0;
   music.play().catch(e => console.log("Error en audio 1:", e));
 
@@ -151,7 +150,7 @@ function start() {
   txt.textContent = "";
   codeBox.classList.remove("hide");
 
-  setTimeout(() => { 
+  setTimeout(() => {
     let n = 0;
     typer = setInterval(() => {
       n += 2;
@@ -161,50 +160,53 @@ function start() {
         setTimeout(() => {
           codeBox.classList.add("hide");
           tl.restart();
-          gsap.to(msg, { 
-            opacity: 1, 
-            scale: 1, 
+          gsap.to(msg, {
+            opacity: 1,
+            scale: 1,
             letterSpacing: "0.08em",
-            filter: "blur(0px)",     
-            duration: 3.5,           
-            delay: 5, 
-            ease: "power3.out" 
+            filter: "blur(0px)",
+            duration: 3.5,
+            delay: 5,
+            ease: "power3.out"
           });
 
-          gsap.to(msg, { 
-            scale: 1.05, 
-            duration: 0.6, 
-            delay: 8.5, 
-            repeat: -1,  
-            yoyo: true, 
+          gsap.to(msg, {
+            scale: 1.05,
+            duration: 0.6,
+            delay: 8.5,
+            repeat: -1,
+            yoyo: true,
             ease: "sine.inOut"
           });
 
-          // Transición al segundo audio de forma segura
+          // Transición al segundo audio
           music.pause();
           music2.currentTime = 0;
+          music2.muted = false;
           music2.play().catch(e => console.log("Error en audio 2:", e));
-          
+
           busy = false;
         }, 900);
       }
     }, 50);
-  }, 1000); 
+  }, 1000);
 }
 
-// Evento de interacción inicial para activar los audios en Android y PC
-addEventListener("pointerdown", () => {
-  if (!started) {
-    started = true;
-    hint.classList.add("hide"); // Ocultar el texto de ayuda
+// Un solo gesto del usuario activa los audios en Android, iOS y PC
+addEventListener("click", () => {
+  if (started) return;
+  started = true;
+  hint.classList.add("hide");
 
-    // Desbloqueo forzado para móviles (reproducir y pausar al instante)
-    music.play().then(() => { music.pause(); }).catch(() => {});
-    music2.play().then(() => { music2.pause(); }).catch(() => {});
+  // Desbloquear el 2º audio en silencio (el 1º se reproduce en start())
+  music2.muted = true;
+  music2.play().then(() => {
+    music2.pause();
+    music2.currentTime = 0;
+    music2.muted = false;
+  }).catch(() => { music2.muted = false; });
 
-    // Iniciar experiencia
-    start();
-  }
+  start();
 });
 </script>
 </body>
