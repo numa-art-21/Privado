@@ -17,25 +17,33 @@
   @keyframes b { 50% { opacity: 0; } }
   #msg { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; font: 700 clamp(28px, 9vw, 70px) Georgia, "Times New Roman", serif; 
   letter-spacing: 0.3em; color: #ffd6ea; text-shadow: 0 0 12px #ff3d92, 0 0 34px #ff3d92; filter: blur(12px); z-index: 5; text-align: center; padding: 0 10px; }
+  
+  /* Indicador visual inicial para el usuario */
+  #hint { position: fixed; bottom: 30px; width: 100%; text-align: center; color: rgba(255,255,255,0.6); font-family: sans-serif; font-size: 14px; z-index: 20; pointer-events: none; transition: opacity 1s; }
+  #hint.hide { opacity: 0; }
 </style>
 </head>
 <body>
 
-<!-- REPRODUCTOR DE AUDIO: Apunta directamente al archivo mp3 -->
-<audio id="bg-music" src="sonido_ba.mp3" loop></audio>
-<audio id="bga-music" src="sonido_aca.mp3" loop></audio>
+<!-- REPRODUCTORES DE AUDIO -->
+<audio id="bg-music" src="sonido_ba.mp3" preload="auto" loop></audio>
+<audio id="bga-music" src="sonido_aca.mp3" preload="auto" loop></audio>
+
+<!-- MENSAJE DE AYUDA PARA MÓVILES/PC -->
+<div id="hint">Toca la pantalla para comenzar ♥</div>
 
 <svg width="0" height="0" style="position:absolute" viewBox="0 0 600 552">
   <path id="heart" d="M300 530 C120 400 20 300 20 180 C20 80 90 20 170 20 C230 20 275 55 300 110 C325 55 370 20 430 20 C510 20 580 80 580 180 C580 300 480 400 300 530 Z"/>
 </svg>
-<div id="msg">TE AMO VICTORIA ♥ <br>
-  FELICES 11 MESES JUNTOS
-</div>
 
-<div id="code"><div id="win">
-  <div class="dots"><span style="background:#ff5f56"></span><span style="background:#ffbd2e"></span><span style="background:#27c93f"></span></div>
-  <pre><span id="txt"></span><span class="cur"></span></pre>
-</div></div>
+<div id="msg">TE AMO VICTORIA ♥ <br> FELICES 3 AÑOS JUNTOS</div>
+
+<div id="code">
+  <div id="win">
+    <div class="dots"><span style="background:#ff5f56"></span><span style="background:#ffbd2e"></span><span style="background:#27c93f"></span></div>
+    <pre><span id="txt"></span><span class="cur"></span></pre>
+  </div>
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -123,6 +131,8 @@ const txt = document.getElementById("txt");
 const msg = document.getElementById("msg");
 const music = document.getElementById("bg-music");
 const music2 = document.getElementById("bga-music");
+const hint = document.getElementById("hint");
+
 let typer = null, busy = false, started = false;
 
 function start() {
@@ -130,9 +140,10 @@ function start() {
   clearInterval(typer);
   busy = true;
   tl.pause(0);
-  music2.pause();
   
-  music.play().catch(e => console.log("Audio play blocked:", e));
+  music2.pause();
+  music.currentTime = 0;
+  music.play().catch(e => console.log("Error en audio 1:", e));
 
   gsap.set(msg, { opacity: 0, scale: 0.9 });
   gsap.killTweensOf(pivot.scale);
@@ -168,8 +179,12 @@ function start() {
             yoyo: true, 
             ease: "sine.inOut"
           });
+
+          // Transición al segundo audio de forma segura
           music.pause();
-          music2.play().catch(e => console.log("Audio 2 play blocked:", e));
+          music2.currentTime = 0;
+          music2.play().catch(e => console.log("Error en audio 2:", e));
+          
           busy = false;
         }, 900);
       }
@@ -177,10 +192,17 @@ function start() {
   }, 1000); 
 }
 
-// Inicia solo cuando el usuario hace clic o toca la pantalla por primera vez
+// Evento de interacción inicial para activar los audios en Android y PC
 addEventListener("pointerdown", () => {
   if (!started) {
     started = true;
+    hint.classList.add("hide"); // Ocultar el texto de ayuda
+
+    // Desbloqueo forzado para móviles (reproducir y pausar al instante)
+    music.play().then(() => { music.pause(); }).catch(() => {});
+    music2.play().then(() => { music2.pause(); }).catch(() => {});
+
+    // Iniciar experiencia
     start();
   }
 });
